@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://neptune.castlegale.com/sitemap.xml
