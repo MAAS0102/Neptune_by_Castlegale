@@ -226,10 +226,33 @@
 })();
 
 (function () {
-  var here = window.location.pathname.split('/').pop() || 'index.html';
+  var loc = window.location;
+  var local = loc.protocol === 'file:' || /^(localhost|[\d.]+|\[[\da-f:]+\])$/i.test(loc.hostname);
+  if (!local) {
+    if (/\.html$/.test(loc.pathname)) {
+      var clean = loc.pathname.replace(/(^|\/)index\.html$/, '$1').replace(/\.html$/, '');
+      window.history.replaceState(null, '', clean + loc.search + loc.hash);
+    }
+    return;
+  }
+  document.querySelectorAll('a[href]').forEach(function (a) {
+    var parts = a.getAttribute('href').split('#');
+    var path = parts[0];
+    if (!path || /^[a-z]+:|^\/\//i.test(path)) return;
+    if (/\/$/.test(path)) path += 'index.html';
+    else if (!/\.[a-z0-9]+$/i.test(path)) path += '.html';
+    parts[0] = path;
+    a.setAttribute('href', parts.join('#'));
+  });
+})();
+
+(function () {
+  function page(path) {
+    return path.split('#')[0].split('/').pop().replace(/\.html$/, '') || 'index';
+  }
+  var here = page(window.location.pathname);
   document.querySelectorAll('.menu-overlay a, .footer-menu a').forEach(function (a) {
-    var target = (a.getAttribute('href') || '').split('#')[0];
-    if (target === here) a.setAttribute('aria-current', 'page');
+    if (page(a.getAttribute('href') || '') === here) a.setAttribute('aria-current', 'page');
   });
 })();
 
